@@ -9,7 +9,7 @@ Created on Fri Jun 22 17:08:19 2018
 import pandas as pd
 
 # Basic Feature Extraction 
-path_data = "/Users/soojunghong/Documents/safariML/ML_python/"
+path_data = "/Users/soojunghong/Documents/safariML/ML_python/TextMining/"
 csv_file = "train.csv"
 train = pd.read_csv(path_data + csv_file)
 type(train)
@@ -54,4 +54,42 @@ train['SentimentText'].head()
 from nltk.corpus import stopwords
 stop = stopwords.words('english')
 train['SentimentText'] = train['SentimentText'].apply(lambda x: " ".join(x for x in x.split() if x not in stop))
+train['SentimentText'].head()
+
+# Common word removal 
+freq = pd.Series(' '.join(train['SentimentText']).split()).value_counts()[:10]
+freq
+type(freq)
+# now remove these common words 
+freq.index
+freq = list(freq.index)
+train['SentimentText'] = train['SentimentText'].apply(lambda x: " ".join(x for x in x.split() if x not in freq))
+train['SentimentText'].head()
+
+
+# Rare words removal 
+lfreq = pd.Series(' '.join(train['SentimentText']).split()).value_counts()[-10:]
+lfreq #least frequent
+train['SentimentText'] = train['SentimentText'].apply(lambda x:" ".join(x for x in x.split() if x not in lfreq))
+train['SentimentText'].head()
+
+# spell correction
+from textblob import TextBlob
+train['SentimentText'][:5].apply(lambda x: str(TextBlob(x).correct()))
+
+# Tokenization : dividing the text into a sequence of words or sentences
+train['SentimentText'][1] 
+TextBlob(train['SentimentText'][1]).words
+
+# Stemming - removal of suffices like 'ing', 'ly', 's' by simply rule based approach 
+# Stemming using PorterStemmer from the NLTK library 
+from nltk.stem import PorterStemmer 
+st = PorterStemmer()
+train['SentimentText'][:5].apply(lambda x: " ".join([st.stem(word) for word in x.split()]))
+
+
+# Lemmatization - more effective option than Stemming because it convert word into root words rather than stripping the suffice
+# usually Lemmatizing is preferred over stemming
+from textblob import Word
+train['SentmentText'] = train['SentimentText'].apply(lambda x: " ".join([Word(word).lemmatize() for word in x.split()]))
 train['SentimentText'].head()
