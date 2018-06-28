@@ -71,3 +71,46 @@ train['SentimentText'] = train['SentimentText'].apply(lambda x: x.decode('latin-
 from sklearn.feature_extraction.text import TfidfVectorizer
 tfidf = TfidfVectorizer(max_features = 1000, lowercase = True, analyzer = 'word', stop_words = 'english', ngram_range=(1,1))
 train_vect = tfidf.fit_transform(train['SentimentText'])
+
+
+#-------------------------------------------------------------------------------------------------------------------------------
+# Bag of Words refers to the representation of text which describes the presence of words within the text data
+# Intuition behind is that two similar text fields will contain similar kind of words, therefore will have similar bag-of-words
+#---------------------------------------------------------------------------------------------------------------------------------
+from sklearn.feature_extraction.text import CountVectorizer
+bow = CountVectorizer(max_features = 1000, lowercase = True, ngram_range = (1,1), analyzer = "word")
+train_bow = bow.fit_transform(train['SentimentText'])
+train_bow
+
+# see the shape of train_bow
+train_bow.shape
+print train_bow[0,:] # see the first row
+
+#------------------------------------------------------------------------------------
+# Sentiment Analysis
+# return tuple of following code represent 'polarity((toward particular direction)' 
+# and 'subjectivity (toward personal)'
+# polarity is close to 1 means positive, value near -1 means negative sentiment
+# sentiment can work as a feature for building machine learning model
+#-------------------------------------------------------------------------------------
+train['SentimentText'][:5].apply(lambda x : TextBlob(x).sentiment[0])
+train[['SentimentText', 'Sentiment']].head()
+
+
+#-----------------------------------------------------------------------------------------------------------
+# Word Embedding : Representation of text in the form of vectors
+# underlying idea behind is that similar words will have a minimum distance between their vectors 
+# Word2Vec require a lot of text, so we can use the pre-trained word vectors developed by Google, Wiki, etc
+#-----------------------------------------------------------------------------------------------------------
+from gensim.scripts.glove2word2vec import glove2word2vec
+glove_input_file =  'globe.6B.100d.text'
+word2vec_output_file = 'glove.6B.100d.txt.word2vec'
+glove2word2vec(glove_input_file, word2vec_output_file)
+
+from gensim.models import KeyedVectors # load the Stanford Glove model
+filename = 'glove.6B.100d.txt.word2vec'
+model = KeyedVectors.load_word2vec_format(filename, binary = False)
+model['go']
+model['away'] # we converted the string to a vector, so we can use it as feature in any modeling technique
+
+(model['go'] + model['away'])/2
