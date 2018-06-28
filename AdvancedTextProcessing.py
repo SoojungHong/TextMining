@@ -41,7 +41,6 @@ tf1
 
 #------------------------------------------------------------------------------------------------------------------------------
 # Inverse Document Frequency 
-# word is not of much use to us if it is appearing in all the documents
 # the intuition behind the Inverse Document Frequency (IDF) is that a word is not much of use if it appearing in all the couments
 
 # it is the ratio of the total number of rows to the number of rows in which that word is present
@@ -49,8 +48,26 @@ tf1
 #------------------------------------------------------------------------------------------------------------------------------
 
 import numpy as np
+tf1['words']
+
 for i, word in enumerate(tf1['words']): #enumerate
     tf1.loc[i, 'idf'] = np.log(train.shape[0]/(len(train[train['SentimentText'].str.contains(word)])))
     
-
 tf1
+
+#----------------------------------------------------------------------------------------------------------
+# Term Frequency - Inverse Document Frequency (TF-IDF)
+# TF-IDF has penaliza words like 'don't', 'cant' because they are commonly used words
+# But it gives high weight to 'love you' since it is very useful in determining the sentiment of the tweeet
+#------------------------------------------------------------------------------------------------------------
+tf1['tfidf'] = tf1['tf'] * tf1['idf']
+tf1
+
+
+#decode otherwise throwing error like ''utf8' codec can't decode byte 0xe9 in position 10: invalid continuation byte'
+train['SentimentText'] = train['SentimentText'].apply(lambda x: x.decode('latin-1'))
+
+# sklearn has already function to calculate TF-IDF 
+from sklearn.feature_extraction.text import TfidfVectorizer
+tfidf = TfidfVectorizer(max_features = 1000, lowercase = True, analyzer = 'word', stop_words = 'english', ngram_range=(1,1))
+train_vect = tfidf.fit_transform(train['SentimentText'])
