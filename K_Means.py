@@ -38,3 +38,14 @@ kmeans(whitened,book)
 random.seed((1000, 2000)) 
 code = 3 
 kmeans(whitened, code)
+
+# array test
+arr = array([[1,2,3],[4,5,6]])
+arr
+arr[[0]] #this sign [[]] is used to index of element of list when array is the array of list
+
+
+# random seed test
+randVal = random.seed(10)
+randVal
+
